@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anamnesis - A Lovecraftian Collage</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4386d9;
+      --secondary: #4f46e5;
+      --background: #0f172a;
+      --text: #f8fafc;
+      --transition: all 0.6s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      transition: background-image 2s ease;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    /* Music Player Styles */
+    .player-container {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 100;
+    }
+    
+    .track-info {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .track-art {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-right: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .track-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .track-details {
+      flex: 1;
+    }
+    
+    .track-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    
+    .track-artist {
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+    
+    .progress-container {
+      position: relative;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      margin: 1rem 0;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    
+    .progress {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      border-radius: 3px;
+      transition: width 0.1s linear;
+    }
+    
+    .progress-thumb {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .progress-container:hover .progress-thumb {
+      opacity: 1;
+    }
+    
+    .time-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 1.5rem;
+    }
+    
+    .control-btn {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 1.2rem;
+      margin: 0 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .control-btn:hover {
+      color: var(--primary);
+      transform: scale(1.1);
+    }
+    
+    .play-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-size: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+    
+    .play-btn:hover {
+      background: var(--secondary);
+      transform: scale(1.05);
+    }
+    
+    .poem-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(5px);
+      border-radius: 12px;
+      padding: 2rem;
+      transition: opacity 0.5s ease;
+    }
+    
+    .poem {
+      max-width: 600px;
+      font-size: 1.4rem;
+      line-height: 1.8;
+      opacity: 0.9;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="player-container">
+      <div class="track-info">
+        <div class="track-art">
+          <img id="album-art" src="https://source.unsplash.com/random/200x200/?abstract,blue" alt="Album Art">
+        </div>
+        <div class="track-details">
+          <div class="track-title" id="track-title">Anamnesis</div>
+          <div class="track-artist">Mirror Manifolds</div>
+        </div>
+      </div>
+      
+      <div class="progress-container" id="progress-container">
+        <div class="progress" id="progress"></div>
+        <div class="progress-thumb" id="progress-thumb"></div>
+      </div>
+      
+      <div class="time-info">
+        <span id="current-time">0:00</span>
+        <span id="duration">0:00</span>
+      </div>
+      
+      <div class="controls">
+        <button class="control-btn" id="prev-btn">
+          <i class="fas fa-step-backward"></i>
+        </button>
+        <button class="play-btn" id="play-btn">
+          <i class="fas fa-play" id="play-icon"></i>
+        </button>
+        <button class="control-btn" id="next-btn">
+          <i class="fas fa-step-forward"></i>
+        </button>
+      </div>
+      
+      <audio id="audio" src="https://actions.google.com/sounds/v1/ambiences/forest_ambience.ogg"></audio>
+    </div>
+    
+    <div class="poem-container" id="poem-container">
+      <div class="poem" id="poem-text">
+        Memories resurface like forgotten stars,
+        Fragments of light piercing darkness.
+        What was lost returns to consciousness,
+        Ancient pathways, reconnected once more.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio Player Functionality
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('play-btn');
+    const playIcon = document.getElementById('play-icon');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const progressContainer = document.getElementById('progress-container');
+    const progress = document.getElementById('progress');
+    const progressThumb = document.getElementById('progress-thumb');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+    const trackTitleEl = document.getElementById('track-title');
+    const albumArtEl = document.getElementById('album-art');
+    const poemTextEl = document.getElementById('poem-text');
+    const poemContainer = document.getElementById('poem-container');
+    
+    const playlist = [
+      {
+        title: 'Anamnesis',
+        artist: 'Mirror Manifolds',
+        src: 'Anamnesis.mp3',
+        art: 'Anamnesis.png',
+        background: 'Anamnesis.png',
+        poem: `Fragments splinter, sharp as glass,
+Reflections shatter, moments pass.
+A name half-formed, a face half-seen,
+A life that flickers in-between.
+
+Beneath the haze of fleeting thought,
+Are echoes of a self forgot.
+The shadow of a hand once grasped,
+Now wavers, weightless, out of clasp.
+
+Time refracts through prisms thin,
+A labyrinth of might-have-been.
+Steps mislaid on spectral trails,
+Through fog where every tether fails.
+
+A mirror breathes—a cracked mirage,
+The past unfolds in décollage.
+A chaos hymn, a fractured rhyme,
+A masquerade of broken time.
+
+And yet beneath the roiling stream,
+The fragile pulse of tethered dream.
+A whisper strains through static’s swell—
+What binds this waking to its spell?
+
+The words escape, dissolve, repeat,
+A haunting voice, a tangled beat.
+The self you knew, the self you are,
+Entwined like smoke in some dim star.
+
+Through jagged memory's keen abyss,
+You wander still—anamnesis.`
+      },
+      {
+        title: 'Eigengrau',
+        artist: 'Mirror Manifolds',
+        src: 'Eigengrau.mp3',
+        art: 'Eigengrau.png',
+        background: 'Eigengrau.png',
+        poem: `The color of nothing is not what you think—
+it spills like ink,
+like shadows flaring beneath shut lids,
+like silence humming,
+(humming louder now),
+a phantom note you cannot hold.
+
+This is what waits behind the static:
+a darkness gravid,
+pregnant with the jagged edges
+of what-might-emerge.
+Let it speak. Let it—
+No.
+
+You press your palms against your sockets,
+harder, harder still,
+as if you could crack the black open,
+peel it back like skin,
+but it only deepens—
+a bruise,
+a well,
+a waiting throat.
+
+Do you remember it now?
+The way the past unfurled like oil,
+slick and viscous over your footprints?
+The way it clung to you,
+dripped in thick syllables you couldn’t quite parse?
+You saw something, something––
+(what was it?)
+
+The shape is still here,
+folded into eigengrau’s velvet cling,
+an absence that refuses to be unnamed.
+A face, maybe.
+A hand, maybe.
+A pulse, definitely––
+(yours?)
+
+Say it aloud—
+the half-formed word that drummed behind clenched teeth,
+the syllables trembling in the void beneath your ribs.
+Say it,
+before it swallows you whole!
+But your breath twists,
+chokes on its own echo.
+You see it, don't you?
+(Do you?)
+
+And now: fractals blooming,
+a kaleidoscope of ruin;
+jagged swarms of afterimages burn like sparklers
+in eigengrau’s endless theater.
+They dance,
+they seethe,
+they sharpen into wire and glass.
+You cannot stop watching.
+Cannot stop seeing—
+
+But what is it?
+What is it?
+What is it?
+(It asks you, over and over, until your throat burns raw.)
+
+Behind closed eyes, it waits in that color.
+Not black, not void—
+the thing with edges whispering sharp,
+the thing with no name but many tongues.
+It trembles,
+it splits,
+it spills into you.
+
+And you wonder:
+Are you watching, or fleeing?
+Are you fleeing, or falling?
+Are you falling, or—`
+      },
+      {
+        title: 'Afterimage',
+        artist: 'Mirror Manifolds',
+        src: 'Afterimage.mp3',
+        art: 'Afterimage.png',
+        background: 'Afterimage.png',
+        poem: `You didn’t know what it was at first—
+just a flare, sudden and unbearable,
+like staring into a dying sun.
+
+Everything else—the walls, the sky, your hands—
+fell away.
+What replaced them wasn’t dark,
+wasn’t light either;
+just something vast,
+something that pressed down on the edges of you
+and filled the spaces between.
+
+The hollow burned.
+You didn’t know you had a hollow before.
+
+You could call it a vision,
+but that would mean it ended.
+This didn’t end.
+It folded itself into the corners of you,
+lodged like ash in the throat.
+You cough, but nothing comes out.
+The taste lingers.
+
+Everywhere you turn, it’s there:
+a smear of color where there shouldn’t be,
+a flicker in the shape of a moment
+that never happened.
+Memories twist themselves into loops,
+each one unraveling before it finishes.
+You see them. You follow them.
+They fragment like glass,
+sharp and impossible to put back together.
+
+And now there’s this ache,
+like you’re made of paper left too long in the rain.
+Soft, sodden, peeling apart in layers.
+You press your hand to your chest,
+feel the flutter of something alive—
+not your heartbeat.
+Not quite.
+
+Time feels wrong now.
+The hours tilt sideways.
+The days collapse inward like lungs without air.
+Sleep is just a curtain you’ve learned to pull across the world,
+but what waits behind it is—
+no.
+No.
+
+You dream in outlines,
+shapes without substance,
+motions that twist as you try to name them.
+And when you wake,
+the aftertaste stays with you:
+bitter, metallic,
+a smear of red across the white.
+
+Sometimes you catch yourself standing still,
+looking at nothing,
+listening for what isn’t there.
+The hum.
+Deep and low and endless,
+like the earth groaning in its sleep.
+You don’t hear it so much as feel it—
+in the teeth, in the bones,
+in the middle of your head where no one else can reach.
+
+It isn’t coming back, you tell yourself,
+but you’re not sure if that’s comfort or fear.
+Better the flash than the ache it left behind.
+Better the impossible brightness
+than this endless gray.
+
+You keep moving because staying still is worse.
+The world looks the same, at least at first glance,
+but it doesn’t feel the same.
+There’s a softness to it now,
+a give beneath your feet
+like the ground has learned to bend.
+The sky has too much weight.
+The shadows stretch too far.
+Even your own reflection seems to lean away from you.
+
+And through it all, it glows quietly,
+beneath thought, beneath breath.
+Call it what you want—
+a vision, an intrusion, a scar.
+It doesn’t care.
+It’s there, in the corner of your mind,
+burned too deep to reach,
+waiting like a question
+you’re afraid to answer.
+
+There was a line,
+once, between you and the world.
+Now you’re not sure which side you’re on.`
+      }
+    ];
+    
+    let currentTrack = 0;
+    
+    // Load track and change all visual elements
+    function loadTrack(trackIndex) {
+      // Fade out poem for smooth transition
+      poemContainer.style.opacity = 0;
+      
+      setTimeout(() => {
+        const track = playlist[trackIndex];
+        audio.src = track.src;
+        trackTitleEl.textContent = track.title;
+        albumArtEl.src = track.art;
+        document.body.style.backgroundImage = `url('${track.background}')`;
+        poemTextEl.textContent = track.poem;
+        
+        // Fade in poem
+        poemContainer.style.opacity = 1;
+        
+        // Reset progress
+        progress.style.width = '0%';
+        progressThumb.style.left = '0%';
+        
+        audio.addEventListener('loadedmetadata', () => {
+          durationEl.textContent = formatTime(audio.duration);
+        });
+      }, 500); // Wait for fade out before changing content
+    }
+    
+    // Format time in minutes and seconds
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+    
+    // Play/Pause toggle
+    function togglePlay() {
+      if (audio.paused) {
+        audio.play();
+        playIcon.classList.replace('fa-play', 'fa-pause');
+      } else {
+        audio.pause();
+        playIcon.classList.replace('fa-pause', 'fa-play');
+      }
+    }
+    
+    // Update progress bar
+    function updateProgress() {
+      const { currentTime, duration } = audio;
+      const progressPercent = (currentTime / duration) * 100;
+      progress.style.width = `${progressPercent}%`;
+      progressThumb.style.left = `${progressPercent}%`;
+      currentTimeEl.textContent = formatTime(currentTime);
+    }
+    
+    // Set progress bar on click
+    function setProgress(e) {
+      const width = this.clientWidth;
+      const clickX = e.offsetX;
+      const duration = audio.duration;
+      audio.currentTime = (clickX / width) * duration;
+    }
+    
+    // Previous track
+    function prevTrack() {
+      currentTrack--;
+      if (currentTrack < 0) {
+        currentTrack = playlist.length - 1;
+      }
+      loadTrack(currentTrack);
+      if (!audio.paused) {
+        audio.play();
+      }
+    }
+    
+    // Next track
+    function nextTrack() {
+      currentTrack++;
+      if (currentTrack > playlist.length - 1) {
+        currentTrack = 0;
+      }
+      loadTrack(currentTrack);
+      if (!audio.paused) {
+        audio.play();
+      }
+    }
+    
+    // Event listeners
+    playBtn.addEventListener('click', togglePlay);
+    prevBtn.addEventListener('click', prevTrack);
+    nextBtn.addEventListener('click', nextTrack);
+    audio.addEventListener('timeupdate', updateProgress);
+    progressContainer.addEventListener('click', setProgress);
+    audio.addEventListener('ended', nextTrack);
+    
+    // Initialize player
+    loadTrack(currentTrack);
+  </script>
+</body>
+</html>
